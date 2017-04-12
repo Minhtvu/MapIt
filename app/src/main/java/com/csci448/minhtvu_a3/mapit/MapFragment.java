@@ -6,6 +6,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -107,6 +108,13 @@ public class MapFragment extends SupportMapFragment {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
         });
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.floating_action_button);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkIn();
+            }
+        });
     }
     // for checking GPS permission
     public void checkPermission(){
@@ -140,6 +148,13 @@ public class MapFragment extends SupportMapFragment {
         }
     }
     private void clear(){
+        for(int i = 1; i < counter; i++)
+        {
+            fireBaseReference.child(Integer.toString(i)).removeValue();
+        }
+        fireBaseReference.child("Count").setValue(1);
+        mMap.clear();
+        locationList.clear();
     }
     private void checkIn(){
         LocationRequest request = LocationRequest.create();
@@ -170,6 +185,7 @@ public class MapFragment extends SupportMapFragment {
         if (mMap == null) return;
         for (Place point: locationList)
         {
+            Log.i(TAG,point.toString());
             mMap.addMarker(new MarkerOptions()
                     .position(point.getLocation())
                     .title(point.getLocation().toString()));
