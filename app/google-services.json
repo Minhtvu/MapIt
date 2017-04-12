@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "540725937903",
+    "firebase_url": "https://mapit-bc66f.firebaseio.com",
+    "project_id": "mapit-bc66f",
+    "storage_bucket": "mapit-bc66f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:540725937903:android:63c3232500bfedba",
+        "android_client_info": {
+          "package_name": "com.csci448.minhtvu_a3.mapit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "540725937903-e2ebp5lih17tmjsgoavppgg11bm5a4c9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAF9Enu9OvrMQcvXOxB2-RXcbiMXsc4mgI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

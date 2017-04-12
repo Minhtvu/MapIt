@@ -19,6 +19,11 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -51,10 +56,10 @@ public class MapFragment extends SupportMapFragment {
     private static final String TAG = "MapFragment";
     private GoogleApiClient mClient;
     private GoogleMap mMap;
-    private String currentWeather;
-    private double currentTemp;
     private Place currentItem;
     private ArrayList<Place> locationList;
+    private Firebase fireBaseReference;
+    private int counter;
     public static MapFragment newInstance(){
         return new MapFragment();
     }
@@ -64,6 +69,7 @@ public class MapFragment extends SupportMapFragment {
         super.onCreate(savedInstanceState);
         checkPermission();
         setHasOptionsMenu(true);
+        counter = 1;
         locationList = new ArrayList<>();
         mClient = new GoogleApiClient.Builder(getActivity()).addApi(LocationServices.API).addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
             @Override
@@ -80,6 +86,25 @@ public class MapFragment extends SupportMapFragment {
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
                 updateUI();
+            }
+        });
+        fireBaseReference = new Firebase("https://mapit-bc66f.firebaseio.com/");
+        fireBaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.e("Count " ,""+ dataSnapshot.getChildrenCount());
+                for (DataSnapshot placeSnapshot: dataSnapshot.getChildren()) {
+                    String child = placeSnapshot.getValue().toString();
+                    if(child.length() > 1){
+                        Place place = new Place(child);
+                        locationList.add(place);}
+                    else{
+                        counter = Integer.parseInt(child);
+                    }
+            }}
+            @Override
+            public void onCancelled(FirebaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
             }
         });
     }
@@ -135,12 +160,13 @@ public class MapFragment extends SupportMapFragment {
                         }
                     });
         }
-        catch(Exception e){
+        catch(SecurityException e){
             Log.i(TAG, "Exception: "+e);
         }
     }
     //add all the markers to the map
     private void updateUI(){
+
         if (mMap == null) return;
         for (Place point: locationList)
         {
@@ -174,11 +200,6 @@ public class MapFragment extends SupportMapFragment {
         LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
         currentItem.setLocation(point);
     }
-    private void setUpWeather(Place currentItem)
-    {
-        currentItem.setWeatherCondition(currentWeather);
-        currentItem.setTemp(currentTemp);
-    }
     @Override
     public void onStart() {
         super.onStart();
@@ -209,9 +230,13 @@ public class MapFragment extends SupportMapFragment {
         @Override
         protected void onPostExecute(Weather weather) {
             super.onPostExecute(weather);
+            fireBaseReference.child("Count").setValue(counter + 1);
             currentItem.setWeatherCondition(weather.currentCondition.getCondition() + "(" + weather.currentCondition.getDescr() + ")");
             currentItem.setTemp(Math.round((weather.temperature.getTemp() - 273.15)));
+            fireBaseReference.child(Integer.toString(counter)).setValue(currentItem);
             locationList.add(currentItem);
+            updateUI();
+            counter += 1;
         }
     }
 }
